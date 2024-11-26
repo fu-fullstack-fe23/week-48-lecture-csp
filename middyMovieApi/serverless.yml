@@ -1,0 +1,60 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: fe23devs
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: middyMovieApi
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: eu-north-1
+  deploymentMethod: direct
+  iam:
+    role: arn:aws:iam::024848481193:role/LambdaDynamoDbRole
+  httpApi:
+    cors: true
+
+functions:
+  GetKey:
+    handler: functions/GetKey/index.handler
+    events:
+      - httpApi:
+          path: /keys
+          method: get
+  GetMovies:
+    handler: functions/GetMovies/index.handler
+    events:
+      - httpApi:
+          path: /movies
+          method: get
+  PostMovie:
+    handler: functions/PostMovie/index.handler
+    events:
+      - httpApi:
+          path: /movies
+          method: post
+  Register:
+    handler: functions/Register/index.handler
+    events:
+      - httpApi:
+          path: /auth/register
+          method: post
+  Login:
+    handler: functions/Login/index.handler
+    events:
+      - httpApi:
+          path: /auth/login
+          method: post
+
+resources:
+  Resources:
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: "user-db"
+        AttributeDefinitions:
+          - AttributeName: "username"
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: "username"
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
